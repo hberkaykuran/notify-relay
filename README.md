@@ -174,3 +174,7 @@ The installer is written to `dist\notify-relay-setup.exe`.
 - The 10 px gaps between fanned-out cards don't pass clicks through.
 - Text is greyscale-antialiased, not ClearType.
 - Only tested at 100 % display scaling.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
