@@ -1,0 +1,9 @@
+__pycache__/
+build/
+dist/
+*.spec.bak
+settings.json.tmp
+*.spec
+*.lnk.bak
+settings.json
+diagnostics/*.log
