@@ -2,7 +2,7 @@
 ; Per-user install: no admin prompt, nothing outside the user's profile.
 
 #define AppName "notify-relay"
-#define AppVersion "0.1"
+#define AppVersion "0.1.1"
 #define Exe "notify-relay.exe"
 
 [Setup]

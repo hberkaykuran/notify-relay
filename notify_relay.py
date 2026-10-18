@@ -749,6 +749,7 @@ class Overlay:
 
     def _add(self, card):
         self._ensure()
+        self.comp.raise_top()
         self._materialize(card)
         self.cards.append(card)
         while len(self.cards) > int(self.cfg.get("max_cards", 5)):

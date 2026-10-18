@@ -36,6 +36,7 @@ user32.DefWindowProcW.argtypes = [W.HWND, W.UINT, W.WPARAM, W.LPARAM]
 user32.DefWindowProcW.restype = ctypes.c_ssize_t
 user32.SetWindowPos.argtypes = [W.HWND, W.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, W.UINT]
 user32.SetWindowRgn.argtypes = [W.HWND, W.HANDLE, W.BOOL]
+user32.UnregisterClassW.argtypes = [W.LPCWSTR, W.HINSTANCE]
 user32.LoadCursorW.restype = W.HANDLE
 user32.LoadCursorW.argtypes = [W.HINSTANCE, c_void_p]
 gdi32.CreateRectRgn.restype = W.HANDLE
@@ -77,7 +78,8 @@ class WNDCLASS(ctypes.Structure):
 
 WS_POPUP = 0x80000000
 WS_EX = 0x00200000 | 0x8 | 0x80 | 0x08000000   # NOREDIRECTIONBITMAP | TOPMOST | TOOLWINDOW | NOACTIVATE
-SWP_NOACTIVATE, SWP_NOZORDER = 0x10, 0x4
+SWP_NOACTIVATE, SWP_NOZORDER, SWP_NOMOVE_SIZE = 0x10, 0x4, 0x3
+HWND_TOPMOST = -1
 _classes = {}                                  # registered window class -> its WNDPROC (kept alive)
 _protos = {}                                   # argtypes -> cached WINFUNCTYPE
 
@@ -203,6 +205,11 @@ class Compositor:
         self.origin = (left, top)
         user32.SetWindowPos(self.hwnd, None, left, top, right - left, bottom - top,
                             SWP_NOACTIVATE | SWP_NOZORDER)
+
+    def raise_top(self):
+        """Back to the top of the topmost band. Windows can drop a topmost window below
+        normal ones and leave WS_EX_TOPMOST set; it never puts it back by itself."""
+        user32.SetWindowPos(self.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE_SIZE | SWP_NOACTIVATE)
 
     def track_leave(self):
         """Ask for one WM_MOUSELEAVE when the pointer leaves the window's region."""

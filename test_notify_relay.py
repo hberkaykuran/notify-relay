@@ -339,6 +339,35 @@ def test_until_ok_retries_instead_of_dying():
     assert nr.until_ok(lambda: 1 / 0, stop, wait=0.01) is None, "a stopped thread gives up"
 
 
+def test_overlay_climbs_back_above_normal_windows():
+    import ctypes, tkinter as tk
+    import dcomp
+    u = ctypes.windll.user32
+    root = tk.Tk()
+    root.geometry("200x100+100+100")
+    root.update()
+    normal = u.GetParent(root.winfo_id()) or root.winfo_id()
+    comp = dcomp.Compositor((0, 0, 50, 50), lambda *a: None)
+    try:
+        # What Windows did on the real PC: topmost bit kept, window sunk under normal ones.
+        u.SetWindowPos(comp.hwnd, normal, 0, 0, 0, 0, 0x3 | 0x10)
+        order = lambda: [h for h in iter_windows() if h in (comp.hwnd, normal)]
+        comp.raise_top()
+        assert order()[0] == comp.hwnd
+    finally:
+        comp.close()
+        root.destroy()
+
+
+def iter_windows():
+    import ctypes
+    from ctypes import wintypes as W
+    out = []
+    cb = ctypes.WINFUNCTYPE(W.BOOL, W.HWND, W.LPARAM)(lambda h, _: out.append(h) or True)
+    ctypes.windll.user32.EnumWindows(cb, 0)
+    return out
+
+
 if __name__ == "__main__":
     test_diff_seen()
     test_target_rect()
@@ -361,4 +390,5 @@ if __name__ == "__main__":
     test_clock_jump_check()
     test_store_watch_sees_header_changes_once()
     test_until_ok_retries_instead_of_dying()
+    test_overlay_climbs_back_above_normal_windows()
     print("ok")
